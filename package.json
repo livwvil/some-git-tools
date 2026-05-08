@@ -14,21 +14,11 @@
   },
   "categories": ["SCM Providers", "Other"],
   "keywords": ["git", "history", "branches", "diff", "scm"],
-  "icon": "resources/icon.png",
   "main": "./dist/extension.js",
   "activationEvents": ["onStartupFinished"],
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "some-git-tools",
-          "title": "Some Git Tools",
-          "icon": "resources/icon.svg"
-        }
-      ]
-    },
     "views": {
-      "some-git-tools": [
+      "scm": [
         {
           "id": "someGitTools.fileHistory",
           "name": "File History",
