@@ -64,9 +64,18 @@
         "id": "someGitTools.goneBranchForeground",
         "description": "Foreground color for branches whose remote tracking branch is gone",
         "defaults": {
-          "dark": "#A0002A",
-          "light": "#8B0000",
-          "highContrast": "#CF6679"
+          "dark": "#712922",
+          "light": "#9b2c1e",
+          "highContrast": "#e05c4a"
+        }
+      },
+      {
+        "id": "someGitTools.unsyncedBranchForeground",
+        "description": "Foreground color for branches that are ahead or behind their upstream",
+        "defaults": {
+          "dark": "#d2ba5b",
+          "light": "#8a6c1a",
+          "highContrast": "#e8d070"
         }
       }
     ],

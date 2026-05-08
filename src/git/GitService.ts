@@ -17,6 +17,9 @@ export interface BranchInfo {
   isCurrent: boolean;
   upstream?: string;
   isGone: boolean;
+  numAhead: number;
+  numBehind: number;
+  lastCommitTimestamp: number;
 }
 
 export class GitService {
@@ -55,18 +58,23 @@ export class GitService {
     const TAB = '\t';
     const out = await this.run(
       'for-each-ref',
-      `--format=%(HEAD)${TAB}%(refname:short)${TAB}%(upstream:short)${TAB}%(upstream:track)`,
+      `--format=%(HEAD)${TAB}%(refname:short)${TAB}%(upstream:short)${TAB}%(upstream:track)${TAB}%(committerdate:unix)`,
       'refs/heads',
     );
     if (!out) return [];
     return out.split('\n').flatMap(line => {
       if (!line) return [];
-      const [head, name, upstream, track] = line.split(TAB);
+      const [head, name, upstream, track, timestamp] = line.split(TAB);
+      const aheadMatch = /ahead (\d+)/.exec(track ?? '');
+      const behindMatch = /behind (\d+)/.exec(track ?? '');
       return [{
         name,
         isCurrent: head === '*',
         upstream: upstream || undefined,
         isGone: track?.includes('[gone]') ?? false,
+        numAhead: aheadMatch ? parseInt(aheadMatch[1], 10) : 0,
+        numBehind: behindMatch ? parseInt(behindMatch[1], 10) : 0,
+        lastCommitTimestamp: parseInt(timestamp, 10) || 0,
       }];
     });
   }

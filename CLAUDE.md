@@ -1,6 +1,7 @@
 # Some Git Tools — VSCode Extension
 
 ## What this is
+
 VSCode extension providing git utilities as tree views in the activity bar.
 
 **Feature 1 — File History** (`someGitTools.fileHistory` view):
@@ -13,11 +14,13 @@ are marked with a warning icon and a `gone` badge. Context menu: Checkout, Delet
 Delete Remote.
 
 ## Names
+
 - VSCode Marketplace: `Some Git Tools` (publisher: `livwvil`)
 - npm: `@livwvil/some-git-tools`
 - GitHub: `livwvil/some-git-tools`
 
 ## Tech stack
+
 - **Language**: TypeScript (strict mode)
 - **Bundler**: esbuild (no webpack)
 - **Package manager**: pnpm
@@ -25,6 +28,7 @@ Delete Remote.
 - **VSCode engine**: `^1.90.0`
 
 ## Project structure
+
 ```
 src/
   extension.ts                         # activate() — wires providers, commands, content provider
@@ -41,6 +45,7 @@ resources/
 ```
 
 ## Development workflow
+
 ```bash
 pnpm install          # first time
 pnpm watch            # incremental build (keep running during dev)
@@ -52,42 +57,50 @@ pnpm package          # produce .vsix for manual install
 ```
 
 ## Key VSCode APIs
-| API | Used for |
-|-----|----------|
-| `vscode.window.registerTreeDataProvider` | file history + branch list |
-| `vscode.workspace.registerTextDocumentContentProvider('sgit', ...)` | serve file content at a commit |
-| `vscode.commands.executeCommand('vscode.diff', leftUri, rightUri, title)` | open diff editor |
-| `vscode.window.onDidChangeActiveTextEditor` | refresh file history when switching files |
+
+| API                                                                       | Used for                                  |
+| ------------------------------------------------------------------------- | ----------------------------------------- |
+| `vscode.window.registerTreeDataProvider`                                  | file history + branch list                |
+| `vscode.workspace.registerTextDocumentContentProvider('sgit', ...)`       | serve file content at a commit            |
+| `vscode.commands.executeCommand('vscode.diff', leftUri, rightUri, title)` | open diff editor                          |
+| `vscode.window.onDidChangeActiveTextEditor`                               | refresh file history when switching files |
 
 ## Git commands used
-| Command | Purpose |
-|---------|---------|
-| `git log --follow --format=%H\x1f%h\x1f%s\x1f%an\x1f%ai\x1e -- <file>` | file commit history |
-| `git for-each-ref --format=%(HEAD)\t%(refname:short)\t%(upstream:short)\t%(upstream:track) refs/heads` | branch list with gone detection |
-| `git show <hash>:<relative-path>` | file content at a commit (for diff) |
-| `git checkout <branch>` | checkout branch |
-| `git branch -d/-D <branch>` | delete local branch |
-| `git push <remote> --delete <branch>` | delete remote branch |
+
+| Command                                                                                                | Purpose                             |
+| ------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| `git log --follow --format=%H\x1f%h\x1f%s\x1f%an\x1f%ai\x1e -- <file>`                                 | file commit history                 |
+| `git for-each-ref --format=%(HEAD)\t%(refname:short)\t%(upstream:short)\t%(upstream:track) refs/heads` | branch list with gone detection     |
+| `git show <hash>:<relative-path>`                                                                      | file content at a commit (for diff) |
+| `git checkout <branch>`                                                                                | checkout branch                     |
+| `git branch -d/-D <branch>`                                                                            | delete local branch                 |
+| `git push <remote> --delete <branch>`                                                                  | delete remote branch                |
 
 ## sgit:// URI scheme
+
 Used to show file content at a specific git ref in the diff editor.
+
 - Scheme: `sgit`
 - Path: `/<repo-relative-file-path>` (leading slash required, for display in diff title)
 - Query: JSON `{ cwd: string, ref: string }` where `ref` is a git ref like `abc1234` or `abc1234^`
 - Empty string returned when ref doesn't exist (e.g. parent of first commit)
 
 ## Tree item contextValue conventions (BranchesProvider)
+
 contextValue is a space-joined set of capability tokens. Menus use `viewItem =~ /token/`.
+
 - `checkout` → branch is not current (can be checked out)
 - `delete-local` → can delete local branch
 - `delete-remote` → has a remote tracking branch to delete
 
 Examples:
+
 - Current branch: `delete-local` (no checkout)
 - Non-current with upstream: `checkout delete-local delete-remote`
 - Gone branch: `checkout delete-local delete-remote gone`
 
 ## Planned features (not yet implemented)
+
 - Blame annotations / blame view
 - Stash manager
 - Cherry-pick from file history
