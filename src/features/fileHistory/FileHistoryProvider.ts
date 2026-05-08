@@ -29,18 +29,38 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
 
   private filePath: string | undefined;
   private repoRoot: string | undefined;
+  private targetHash: string | undefined;
   treeView: vscode.TreeView<CommitItem> | undefined;
 
   refresh(): void {
     const editor = vscode.window.activeTextEditor;
     const ws = vscode.workspace.workspaceFolders?.[0];
-    // Only update when a real file editor is active; ignore diffs, panels, undefined, etc.
-    if (!editor || editor.document.uri.scheme !== 'file' || editor.document.isUntitled || !ws) {
-      return;
+
+    if (!editor) return;
+
+    if (editor.document.uri.scheme === 'file') {
+      if (editor.document.isUntitled || !ws) return;
+      this.filePath = editor.document.uri.fsPath;
+      this.repoRoot = ws.uri.fsPath;
+      this.targetHash = undefined;
+      this._onDidChangeTreeData.fire(null);
+    } else if (editor.document.uri.scheme === 'sgit') {
+      try {
+        const uri = editor.document.uri;
+        const { cwd, ref } = JSON.parse(uri.query) as { cwd: string; ref: string };
+        const relPath = uri.path.replace(/^\//, '');
+        const absolutePath = path.join(cwd, relPath);
+        // ref is either 'hash' (right side) or 'hash^' (left/parent side) — strip ^ to get commit hash
+        const hash = ref.replace(/\^$/, '');
+        if (this.filePath === absolutePath && this.targetHash === hash) return;
+        this.filePath = absolutePath;
+        this.repoRoot = cwd;
+        this.targetHash = hash;
+        this._onDidChangeTreeData.fire(null);
+      } catch {
+        // ignore malformed URI
+      }
     }
-    this.filePath = editor.document.uri.fsPath;
-    this.repoRoot = ws.uri.fsPath;
-    this._onDidChangeTreeData.fire(null);
   }
 
   getTreeItem(element: CommitItem): vscode.TreeItem {
@@ -52,7 +72,15 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
     try {
       const git = new GitService(this.repoRoot);
       const commits = await git.getFileLog(this.filePath);
-      return commits.map(c => new CommitItem(c, this.filePath!, this.repoRoot!));
+      const items = commits.map(c => new CommitItem(c, this.filePath!, this.repoRoot!));
+      if (this.targetHash) {
+        const target = items.find(item => item.commit.hash === this.targetHash);
+        if (target) {
+          const treeView = this.treeView;
+          setTimeout(() => treeView?.reveal(target, { select: true, focus: false }), 0);
+        }
+      }
+      return items;
     } catch (err) {
       vscode.window.showErrorMessage(`Some Git Tools: ${String(err)}`);
       return [];
