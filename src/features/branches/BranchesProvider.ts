@@ -1,6 +1,16 @@
 import * as vscode from 'vscode';
 import { GitService, BranchInfo } from '../../git/GitService';
 
+const GONE_SCHEME = 'sgit-branch-gone';
+
+export class GoneBranchDecorationProvider implements vscode.FileDecorationProvider {
+  provideFileDecoration(uri: vscode.Uri): vscode.FileDecoration | undefined {
+    if (uri.scheme === GONE_SCHEME) {
+      return { color: new vscode.ThemeColor('someGitTools.goneBranchForeground') };
+    }
+  }
+}
+
 export class BranchItem extends vscode.TreeItem {
   constructor(public readonly branch: BranchInfo) {
     super(branch.name, vscode.TreeItemCollapsibleState.None);
@@ -15,7 +25,8 @@ export class BranchItem extends vscode.TreeItem {
     if (branch.isCurrent) {
       this.iconPath = new vscode.ThemeIcon('check', new vscode.ThemeColor('gitDecoration.addedResourceForeground'));
     } else if (branch.isGone) {
-      this.iconPath = new vscode.ThemeIcon('warning', new vscode.ThemeColor('gitDecoration.deletedResourceForeground'));
+      this.iconPath = new vscode.ThemeIcon('git-branch');
+      this.resourceUri = vscode.Uri.from({ scheme: GONE_SCHEME, path: '/' + branch.name });
     } else {
       this.iconPath = new vscode.ThemeIcon('git-branch');
     }

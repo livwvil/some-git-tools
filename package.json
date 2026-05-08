@@ -59,6 +59,17 @@
         "title": "Delete Remote Branch"
       }
     ],
+    "colors": [
+      {
+        "id": "someGitTools.goneBranchForeground",
+        "description": "Foreground color for branches whose remote tracking branch is gone",
+        "defaults": {
+          "dark": "#A0002A",
+          "light": "#8B0000",
+          "highContrast": "#CF6679"
+        }
+      }
+    ],
     "menus": {
       "view/title": [
         {

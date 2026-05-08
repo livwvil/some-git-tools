@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { FileHistoryProvider } from './features/fileHistory/FileHistoryProvider';
 import { GitContentProvider } from './features/fileHistory/GitContentProvider';
-import { BranchesProvider } from './features/branches/BranchesProvider';
+import { BranchesProvider, GoneBranchDecorationProvider } from './features/branches/BranchesProvider';
 import type { CommitItem } from './features/fileHistory/FileHistoryProvider';
 import type { BranchItem } from './features/branches/BranchesProvider';
 
@@ -13,14 +13,22 @@ export function activate(context: vscode.ExtensionContext): void {
   fileHistory.refresh();
   branches.refresh();
 
+  // Auto-refresh branches when HEAD changes (checkout, rebase, etc.)
+  const headWatcher = vscode.workspace.createFileSystemWatcher('**/.git/HEAD');
+
   context.subscriptions.push(
     vscode.workspace.registerTextDocumentContentProvider('sgit', new GitContentProvider()),
 
     vscode.window.registerTreeDataProvider('someGitTools.fileHistory', fileHistory),
     vscode.window.registerTreeDataProvider('someGitTools.branches', branches),
+    vscode.window.registerFileDecorationProvider(new GoneBranchDecorationProvider()),
 
     // Refresh file history when the active editor changes
     vscode.window.onDidChangeActiveTextEditor(() => fileHistory.refresh()),
+
+    // Refresh branches on HEAD change
+    headWatcher,
+    headWatcher.onDidChange(() => branches.refresh()),
 
     vscode.commands.registerCommand('someGitTools.refreshFileHistory', () => fileHistory.refresh()),
     vscode.commands.registerCommand('someGitTools.openDiff', (item: CommitItem) => fileHistory.openDiff(item)),
