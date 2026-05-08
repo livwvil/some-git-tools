@@ -16,10 +16,15 @@ export function activate(context: vscode.ExtensionContext): void {
   // Auto-refresh branches when HEAD changes (checkout, rebase, etc.)
   const headWatcher = vscode.workspace.createFileSystemWatcher('**/.git/HEAD');
 
+  const fileHistoryView = vscode.window.createTreeView('someGitTools.fileHistory', {
+    treeDataProvider: fileHistory,
+  });
+  fileHistory.treeView = fileHistoryView;
+
   context.subscriptions.push(
     vscode.workspace.registerTextDocumentContentProvider('sgit', new GitContentProvider()),
 
-    vscode.window.registerTreeDataProvider('someGitTools.fileHistory', fileHistory),
+    fileHistoryView,
     vscode.window.registerTreeDataProvider('someGitTools.branches', branches),
     vscode.window.registerFileDecorationProvider(new GoneBranchDecorationProvider()),
 

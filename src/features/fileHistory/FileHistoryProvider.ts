@@ -29,17 +29,17 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
 
   private filePath: string | undefined;
   private repoRoot: string | undefined;
+  treeView: vscode.TreeView<CommitItem> | undefined;
 
   refresh(): void {
     const editor = vscode.window.activeTextEditor;
     const ws = vscode.workspace.workspaceFolders?.[0];
-    if (editor && ws && !editor.document.isUntitled) {
-      this.filePath = editor.document.uri.fsPath;
-      this.repoRoot = ws.uri.fsPath;
-    } else {
-      this.filePath = undefined;
-      this.repoRoot = undefined;
+    // Only update when a real file editor is active; ignore diffs, panels, undefined, etc.
+    if (!editor || editor.document.uri.scheme !== 'file' || editor.document.isUntitled || !ws) {
+      return;
     }
+    this.filePath = editor.document.uri.fsPath;
+    this.repoRoot = ws.uri.fsPath;
     this._onDidChangeTreeData.fire(null);
   }
 
@@ -60,9 +60,10 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
   }
 
   async openDiff(item: CommitItem): Promise<void> {
-    const { hash, shortHash, subject } = item.commit;
+    const { hash, shortHash, shortParentHash } = item.commit;
     const relPath = path.relative(item.repoRoot, item.absoluteFilePath).replace(/\\/g, '/');
     const cwd = item.repoRoot;
+    const filename = path.basename(item.absoluteFilePath);
 
     const makeUri = (ref: string) =>
       vscode.Uri.from({
@@ -72,11 +73,15 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
         query: JSON.stringify({ cwd, ref }),
       });
 
+    const parentLabel = shortParentHash || '∅';
+    const title = `${filename} [${parentLabel} - ${shortHash}]`;
+
     await vscode.commands.executeCommand(
       'vscode.diff',
       makeUri(`${hash}^`),
       makeUri(hash),
-      `${subject} (${shortHash})`,
+      title,
     );
+    this.treeView?.reveal(item, { select: true, focus: false });
   }
 }

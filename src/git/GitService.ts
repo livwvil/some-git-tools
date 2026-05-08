@@ -6,6 +6,7 @@ const execFileAsync = promisify(execFile);
 export interface CommitInfo {
   hash: string;
   shortHash: string;
+  shortParentHash: string;
   subject: string;
   author: string;
   date: string;
@@ -36,15 +37,17 @@ export class GitService {
     const RS = '\x1e';
     const out = await this.run(
       'log', '--follow',
-      `--format=%H${SEP}%h${SEP}%s${SEP}%an${SEP}%ai${RS}`,
+      `--format=%H${SEP}%h${SEP}%p${SEP}%s${SEP}%an${SEP}%ai${RS}`,
       '--', filePath,
     );
     if (!out) return [];
     return out.split(RS).flatMap(record => {
       const trimmed = record.trim();
       if (!trimmed) return [];
-      const [hash, shortHash, subject, author, date] = trimmed.split(SEP);
-      return [{ hash, shortHash, subject, author, date }];
+      const [hash, shortHash, parentHashes, subject, author, date] = trimmed.split(SEP);
+      // %p gives space-separated abbreviated parent hashes; take the first one
+      const shortParentHash = parentHashes?.split(' ')[0] ?? '';
+      return [{ hash, shortHash, shortParentHash, subject, author, date }];
     });
   }
 
