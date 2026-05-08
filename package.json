@@ -1,0 +1,121 @@
+{
+  "name": "some-git-tools",
+  "displayName": "Some Git Tools",
+  "description": "Git utilities for VSCode: file commit history with diff, branch manager with gone-branch detection",
+  "version": "0.0.1",
+  "publisher": "livwvil",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/livwvil/some-git-tools"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": ["SCM Providers", "Other"],
+  "keywords": ["git", "history", "branches", "diff", "scm"],
+  "icon": "resources/icon.png",
+  "main": "./dist/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "some-git-tools",
+          "title": "Some Git Tools",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "some-git-tools": [
+        {
+          "id": "someGitTools.fileHistory",
+          "name": "File History",
+          "when": "workbenchState != empty"
+        },
+        {
+          "id": "someGitTools.branches",
+          "name": "Branches",
+          "when": "workbenchState != empty"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "someGitTools.refreshFileHistory",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "someGitTools.openDiff",
+        "title": "Open Diff"
+      },
+      {
+        "command": "someGitTools.refreshBranches",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "someGitTools.checkoutBranch",
+        "title": "Checkout"
+      },
+      {
+        "command": "someGitTools.deleteLocalBranch",
+        "title": "Delete Local Branch"
+      },
+      {
+        "command": "someGitTools.deleteRemoteBranch",
+        "title": "Delete Remote Branch"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "someGitTools.refreshFileHistory",
+          "when": "view == someGitTools.fileHistory",
+          "group": "navigation"
+        },
+        {
+          "command": "someGitTools.refreshBranches",
+          "when": "view == someGitTools.branches",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "someGitTools.checkoutBranch",
+          "when": "view == someGitTools.branches && viewItem =~ /checkout/",
+          "group": "1_branch@1"
+        },
+        {
+          "command": "someGitTools.deleteLocalBranch",
+          "when": "view == someGitTools.branches && viewItem =~ /delete-local/",
+          "group": "1_branch@2"
+        },
+        {
+          "command": "someGitTools.deleteRemoteBranch",
+          "when": "view == someGitTools.branches && viewItem =~ /delete-remote/",
+          "group": "1_branch@3"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run build",
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "vsce package --no-dependencies"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "@vscode/vsce-sign", "keytar"]
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.0"
+  }
+}

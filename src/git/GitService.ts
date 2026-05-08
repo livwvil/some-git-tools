@@ -1,0 +1,94 @@
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
+
+export interface CommitInfo {
+  hash: string;
+  shortHash: string;
+  subject: string;
+  author: string;
+  date: string;
+}
+
+export interface BranchInfo {
+  name: string;
+  isCurrent: boolean;
+  upstream?: string;
+  isGone: boolean;
+}
+
+export class GitService {
+  constructor(private readonly cwd: string) {}
+
+  private async run(...args: string[]): Promise<string> {
+    try {
+      const { stdout } = await execFileAsync('git', args, { cwd: this.cwd });
+      return stdout.trim();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? (err as NodeJS.ErrnoException & { stderr?: string }).stderr ?? err.message : String(err);
+      throw new Error(msg);
+    }
+  }
+
+  async getFileLog(filePath: string): Promise<CommitInfo[]> {
+    const SEP = '\x1f';
+    const RS = '\x1e';
+    const out = await this.run(
+      'log', '--follow',
+      `--format=%H${SEP}%h${SEP}%s${SEP}%an${SEP}%ai${RS}`,
+      '--', filePath,
+    );
+    if (!out) return [];
+    return out.split(RS).flatMap(record => {
+      const trimmed = record.trim();
+      if (!trimmed) return [];
+      const [hash, shortHash, subject, author, date] = trimmed.split(SEP);
+      return [{ hash, shortHash, subject, author, date }];
+    });
+  }
+
+  async getLocalBranches(): Promise<BranchInfo[]> {
+    const TAB = '\t';
+    const out = await this.run(
+      'for-each-ref',
+      `--format=%(HEAD)${TAB}%(refname:short)${TAB}%(upstream:short)${TAB}%(upstream:track)`,
+      'refs/heads',
+    );
+    if (!out) return [];
+    return out.split('\n').flatMap(line => {
+      if (!line) return [];
+      const [head, name, upstream, track] = line.split(TAB);
+      return [{
+        name,
+        isCurrent: head === '*',
+        upstream: upstream || undefined,
+        isGone: track?.includes('[gone]') ?? false,
+      }];
+    });
+  }
+
+  async getFileContentAtRef(ref: string, repoRelativePath: string): Promise<string> {
+    try {
+      return await this.run('show', `${ref}:${repoRelativePath}`);
+    } catch {
+      return '';
+    }
+  }
+
+  async checkout(branch: string): Promise<void> {
+    await this.run('checkout', branch);
+  }
+
+  async deleteLocalBranch(branch: string, force = false): Promise<void> {
+    await this.run('branch', force ? '-D' : '-d', branch);
+  }
+
+  async deleteRemoteBranch(upstream: string): Promise<void> {
+    // upstream is e.g. "origin/feature/foo" → split on first "/"
+    const idx = upstream.indexOf('/');
+    const remote = upstream.slice(0, idx);
+    const branch = upstream.slice(idx + 1);
+    await this.run('push', remote, '--delete', branch);
+  }
+}
