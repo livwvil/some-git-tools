@@ -9,9 +9,10 @@ Shows all commits that touched the currently open file. Clicking a commit opens 
 (before vs after that commit) using a custom `sgit://` URI scheme + `vscode.diff`.
 
 **Feature 2 — Branch Manager** (`someGitTools.branches` view):
-Lists all local branches. Branches whose remote tracking ref is gone (deleted upstream)
-are marked with a warning icon and a `gone` badge. Context menu: Checkout, Delete Local,
-Delete Remote.
+Lists all local branches sorted current-first, then gone, then alphabetically.
+Branches whose remote tracking ref is gone are highlighted in red (`goneBranchForeground`) with a
+`⚠ upstream` description. Branches ahead/behind their upstream are highlighted in yellow
+(`unsyncedBranchForeground`) with `↓N ↑N` counts. Context menu: Checkout, Delete Local, Delete Remote.
 
 ## Names
 
@@ -67,14 +68,14 @@ pnpm package          # produce .vsix for manual install
 
 ## Git commands used
 
-| Command                                                                                                | Purpose                             |
-| ------------------------------------------------------------------------------------------------------ | ----------------------------------- |
-| `git log --follow --format=%H\x1f%h\x1f%s\x1f%an\x1f%ai\x1e -- <file>`                                 | file commit history                 |
-| `git for-each-ref --format=%(HEAD)\t%(refname:short)\t%(upstream:short)\t%(upstream:track) refs/heads` | branch list with gone detection     |
-| `git show <hash>:<relative-path>`                                                                      | file content at a commit (for diff) |
-| `git checkout <branch>`                                                                                | checkout branch                     |
-| `git branch -d/-D <branch>`                                                                            | delete local branch                 |
-| `git push <remote> --delete <branch>`                                                                  | delete remote branch                |
+| Command                                                                                                                       | Purpose                                      |
+| ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `git log --follow --format=%H\x1f%h\x1f%p\x1f%s\x1f%an\x1f%ai\x1e -- <file>`                                                  | file commit history                          |
+| `git for-each-ref --format=%(HEAD)\t%(refname:short)\t%(upstream:short)\t%(upstream:track)\t%(committerdate:unix) refs/heads` | branch list with gone + ahead/behind + dates |
+| `git show <hash>:<relative-path>`                                                                                             | file content at a commit (for diff)          |
+| `git checkout <branch>`                                                                                                       | checkout branch                              |
+| `git branch -d/-D <branch>`                                                                                                   | delete local branch                          |
+| `git push <remote> --delete <branch>`                                                                                         | delete remote branch                         |
 
 ## sgit:// URI scheme
 
@@ -95,13 +96,6 @@ contextValue is a space-joined set of capability tokens. Menus use `viewItem =~ 
 
 Examples:
 
-- Current branch: `delete-local` (no checkout)
+- Current branch, no upstream: `delete-local`
 - Non-current with upstream: `checkout delete-local delete-remote`
-- Gone branch: `checkout delete-local delete-remote gone`
-
-## Planned features (not yet implemented)
-
-- Blame annotations / blame view
-- Stash manager
-- Cherry-pick from file history
-- PR integration
+- Gone branch: `checkout delete-local delete-remote gone` (gone always implies `delete-remote`)
