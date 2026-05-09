@@ -12,10 +12,22 @@
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": ["SCM Providers", "Other"],
-  "keywords": ["git", "history", "branches", "diff", "scm"],
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "history",
+    "branches",
+    "diff",
+    "scm"
+  ],
+  "icon": "resources/icon.png",
   "main": "./dist/extension.js",
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "views": {
       "scm": [
@@ -119,7 +131,11 @@
     "package": "vsce package --no-dependencies"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "@vscode/vsce-sign", "keytar"]
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@vscode/vsce-sign",
+      "keytar"
+    ]
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

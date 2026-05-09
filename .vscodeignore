@@ -2,7 +2,10 @@ src/**
 .vscode/**
 .claude/**
 node_modules/**
-*.map
+**/*.map
 tsconfig.json
 .gitignore
 CLAUDE.md
+resources/icon.svg
+pnpm-lock.yaml
+pnpm-workspace.yaml
