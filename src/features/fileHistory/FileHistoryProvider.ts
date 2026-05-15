@@ -35,16 +35,15 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
   refresh(): void {
     const editor = vscode.window.activeTextEditor;
     const ws = vscode.workspace.workspaceFolders?.[0];
+    const activeTab = vscode.window.tabGroups.activeTabGroup?.activeTab;
 
-    if (!editor) return;
-
-    if (editor.document.uri.scheme === 'file') {
-      if (editor.document.isUntitled || !ws) return;
+    if (activeTab?.input instanceof vscode.TabInputText) {
+      if (!editor || editor.document.isUntitled || !ws) return;
       this.filePath = editor.document.uri.fsPath;
       this.repoRoot = ws.uri.fsPath;
       this.targetHash = undefined;
       this._onDidChangeTreeData.fire(null);
-    } else if (editor.document.uri.scheme === 'sgit') {
+    } else if (activeTab?.input instanceof vscode.TabInputTextDiff && editor?.document.uri.scheme === 'sgit') {
       try {
         const uri = editor.document.uri;
         const { cwd, ref } = JSON.parse(uri.query) as { cwd: string; ref: string };
@@ -60,6 +59,11 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
       } catch {
         // ignore malformed URI
       }
+    } else {
+      this.filePath = undefined;
+      this.repoRoot = undefined;
+      this.targetHash = undefined;
+      this._onDidChangeTreeData.fire(null);
     }
   }
 
