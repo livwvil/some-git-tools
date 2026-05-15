@@ -102,4 +102,17 @@ export class GitService {
     const branch = upstream.slice(idx + 1);
     await this.run('push', remote, '--delete', branch);
   }
+
+  async pull(branch: BranchInfo): Promise<void> {
+    if (!branch.upstream) return;
+    const idx = branch.upstream.indexOf('/');
+    const remote = branch.upstream.slice(0, idx);
+    const remoteBranch = branch.upstream.slice(idx + 1);
+    if (branch.isCurrent) {
+      await this.run('pull');
+    } else {
+      // fetch directly into local ref (works for non-checked-out branches)
+      await this.run('fetch', remote, `${remoteBranch}:${branch.name}`);
+    }
+  }
 }

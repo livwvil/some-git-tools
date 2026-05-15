@@ -58,6 +58,7 @@ export class BranchItem extends vscode.TreeItem {
     tokens.push('delete-local');
     if (branch.upstream) tokens.push('delete-remote');
     if (branch.isGone) tokens.push('gone');
+    if (!branch.isGone && branch.numBehind > 0) tokens.push('pull');
     this.contextValue = tokens.join(' ');
 
     this.iconPath = new vscode.ThemeIcon('git-branch');
@@ -137,6 +138,17 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
       this.refresh();
     } catch (err) {
       vscode.window.showErrorMessage(`Delete failed: ${String(err)}`);
+    }
+  }
+
+  async pullBranch(item: BranchItem): Promise<void> {
+    if (!this.repoRoot) return;
+    const git = new GitService(this.repoRoot);
+    try {
+      await git.pull(item.branch);
+      this.refresh();
+    } catch (err) {
+      vscode.window.showErrorMessage(`Pull failed: ${String(err)}`);
     }
   }
 

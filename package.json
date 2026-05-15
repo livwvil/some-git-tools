@@ -69,6 +69,11 @@
       {
         "command": "someGitTools.deleteRemoteBranch",
         "title": "Delete Remote Branch"
+      },
+      {
+        "command": "someGitTools.pullBranch",
+        "title": "Pull",
+        "icon": "$(arrow-down)"
       }
     ],
     "colors": [
@@ -119,6 +124,16 @@
           "command": "someGitTools.deleteRemoteBranch",
           "when": "view == someGitTools.branches && viewItem =~ /delete-remote/",
           "group": "1_branch@3"
+        },
+        {
+          "command": "someGitTools.pullBranch",
+          "when": "view == someGitTools.branches && viewItem =~ /pull/",
+          "group": "inline"
+        },
+        {
+          "command": "someGitTools.pullBranch",
+          "when": "view == someGitTools.branches && viewItem =~ /pull/",
+          "group": "1_branch@0"
         }
       ]
     }
