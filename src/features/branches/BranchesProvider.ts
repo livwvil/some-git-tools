@@ -55,8 +55,8 @@ export class BranchItem extends vscode.TreeItem {
 
     const tokens: string[] = [];
     if (!branch.isCurrent) tokens.push('checkout');
-    tokens.push('delete-local');
-    if (branch.upstream) tokens.push('delete-remote');
+    if (!branch.isCurrent) tokens.push('delete-local');
+    if (branch.upstream && !branch.isGone) tokens.push('delete-remote');
     if (branch.isGone) tokens.push('gone');
     if (!branch.isGone && branch.numBehind > 0) tokens.push('pull');
     this.contextValue = tokens.join(' ');
@@ -148,7 +148,23 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
       await git.deleteLocalBranch(item.branch.name, answer === 'Force Delete');
       this.refresh();
     } catch (err) {
-      vscode.window.showErrorMessage(`Delete failed: ${String(err)}`);
+      const msg = String(err);
+      if (answer !== 'Force Delete' && msg.includes('not fully merged')) {
+        const force = await vscode.window.showWarningMessage(
+          `Branch "${item.branch.name}" is not fully merged. Force delete?`,
+          { modal: true },
+          'Force Delete',
+        );
+        if (!force) return;
+        try {
+          await git.deleteLocalBranch(item.branch.name, true);
+          this.refresh();
+        } catch (err2) {
+          vscode.window.showErrorMessage(`Delete failed: ${String(err2)}`);
+        }
+      } else {
+        vscode.window.showErrorMessage(`Delete failed: ${msg}`);
+      }
     }
   }
 

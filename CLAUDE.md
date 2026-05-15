@@ -96,6 +96,7 @@ contextValue is a space-joined set of capability tokens. Menus use `viewItem =~ 
 
 Examples:
 
-- Current branch, no upstream: `delete-local`
+- Current branch, no upstream: *(no tokens)*
+- Current branch, with upstream: `delete-remote`
 - Non-current with upstream: `checkout delete-local delete-remote`
-- Gone branch: `checkout delete-local delete-remote gone` (gone always implies `delete-remote`)
+- Gone branch: `checkout delete-local gone`
