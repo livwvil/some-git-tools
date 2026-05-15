@@ -15,6 +15,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Auto-refresh branches when HEAD changes (checkout, rebase, etc.)
   const headWatcher = vscode.workspace.createFileSystemWatcher('**/.git/HEAD');
+  // Auto-refresh branches when fetch runs in the terminal (updates FETCH_HEAD)
+  const fetchHeadWatcher = vscode.workspace.createFileSystemWatcher('**/.git/FETCH_HEAD');
 
   const fileHistoryView = vscode.window.createTreeView('someGitTools.fileHistory', {
     treeDataProvider: fileHistory,
@@ -34,6 +36,11 @@ export function activate(context: vscode.ExtensionContext): void {
     // Refresh branches on HEAD change
     headWatcher,
     headWatcher.onDidChange(() => branches.refresh()),
+
+    // Refresh branches when fetch runs in the terminal
+    fetchHeadWatcher,
+    fetchHeadWatcher.onDidChange(() => branches.refresh()),
+    fetchHeadWatcher.onDidCreate(() => branches.refresh()),
 
     vscode.commands.registerCommand('someGitTools.refreshFileHistory', () => fileHistory.refresh()),
     vscode.commands.registerCommand('someGitTools.openDiff', (item: CommitItem) => fileHistory.openDiff(item)),
