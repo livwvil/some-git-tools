@@ -76,6 +76,9 @@ pnpm package          # produce .vsix for manual install
 | `git checkout <branch>`                                                                                                       | checkout branch                              |
 | `git branch -d/-D <branch>`                                                                                                   | delete local branch                          |
 | `git push <remote> --delete <branch>`                                                                                         | delete remote branch                         |
+| `git fetch --all --prune`                                                                                                     | fetch & prune all remotes                    |
+| `git pull`                                                                                                                    | pull current branch                          |
+| `git fetch <remote> <remoteBranch>:<localBranch>`                                                                             | pull non-checked-out branch                  |
 
 ## sgit:// URI scheme
 
@@ -91,12 +94,14 @@ Used to show file content at a specific git ref in the diff editor.
 contextValue is a space-joined set of capability tokens. Menus use `viewItem =~ /token/`.
 
 - `checkout` → branch is not current (can be checked out)
-- `delete-local` → can delete local branch
-- `delete-remote` → has a remote tracking branch to delete
+- `delete-local` → branch is not current (can delete local ref)
+- `delete-remote` → has a remote tracking ref and is not gone (remote still exists)
+- `gone` → remote tracking ref has been deleted upstream
+- `pull` → branch is behind its upstream and not gone (inline pull button shown)
 
 Examples:
 
-- Current branch, no upstream: *(no tokens)*
+- Current branch, no upstream: _(no tokens)_
 - Current branch, with upstream: `delete-remote`
 - Non-current with upstream: `checkout delete-local delete-remote`
 - Gone branch: `checkout delete-local gone`

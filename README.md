@@ -17,13 +17,16 @@ Browse every commit that touched the currently open file, directly in the SCM pa
 - Each entry shows the commit message, short hash, and author.
 - Hovering reveals the full hash, author, and timestamp in a tooltip.
 - **Click any commit** to open a before/after diff in the editor.
+- **Copy Commit Hash** button (inline) copies the full hash to the clipboard.
 
-When a diff tab is open (from clicking a commit), the File History view stays in sync — it highlights the commit that produced the diff you are looking at.
+When a diff tab is open (from clicking a commit), the File History view stays in sync — it highlights the commit that produced the diff you are looking at. When a non-file tab is active (terminal, settings, etc.) the list clears.
 
 ### Branch Manager
 
 A branch list with status indicators, sorted so the most important branches surface first:
 current branch → gone branches → all others alphabetically.
+
+The **Fetch & Prune** button in the view toolbar runs `git fetch --all --prune` and refreshes the list. The list also refreshes automatically when a fetch runs in the integrated terminal (detected via `FETCH_HEAD` changes).
 
 #### Gone Branches
 
@@ -39,11 +42,12 @@ Branches that are out of sync with their upstream show `↓N ↑N` counts in yel
 
 Right-click any branch for available actions:
 
-| Action               | Available when                      |
-| -------------------- | ----------------------------------- |
-| Checkout             | Branch is not the current branch    |
-| Delete Local Branch  | Always                              |
-| Delete Remote Branch | Branch has an upstream tracking ref |
+| Action               | Available when                                           |
+| -------------------- | -------------------------------------------------------- |
+| Checkout             | Branch is not the current branch                         |
+| Pull                 | Branch is behind its upstream (shown inline as a button) |
+| Delete Local Branch  | Branch is not the current branch                         |
+| Delete Remote Branch | Branch has an upstream tracking ref (not gone)           |
 
 Deleting a local branch prompts for confirmation and offers a **Force Delete** option for branches with unmerged changes.
 
