@@ -74,6 +74,11 @@
         "command": "someGitTools.pullBranch",
         "title": "Pull",
         "icon": "$(arrow-down)"
+      },
+      {
+        "command": "someGitTools.fetchPruneBranches",
+        "title": "Fetch & Prune",
+        "icon": "$(cloud-download)"
       }
     ],
     "colors": [
@@ -105,6 +110,11 @@
         },
         {
           "command": "someGitTools.refreshBranches",
+          "when": "view == someGitTools.branches",
+          "group": "navigation"
+        },
+        {
+          "command": "someGitTools.fetchPruneBranches",
           "when": "view == someGitTools.branches",
           "group": "navigation"
         }

@@ -39,6 +39,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('someGitTools.openDiff', (item: CommitItem) => fileHistory.openDiff(item)),
 
     vscode.commands.registerCommand('someGitTools.refreshBranches', () => branches.refresh()),
+    vscode.commands.registerCommand('someGitTools.fetchPruneBranches', () => branches.fetchPrune()),
     vscode.commands.registerCommand('someGitTools.checkoutBranch', (item: BranchItem) => branches.checkout(item)),
     vscode.commands.registerCommand('someGitTools.deleteLocalBranch', (item: BranchItem) => branches.deleteLocalBranch(item)),
     vscode.commands.registerCommand('someGitTools.deleteRemoteBranch', (item: BranchItem) => branches.deleteRemoteBranch(item)),

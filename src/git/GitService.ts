@@ -103,6 +103,10 @@ export class GitService {
     await this.run('push', remote, '--delete', branch);
   }
 
+  async fetchPrune(): Promise<void> {
+    await this.run('fetch', '--all', '--prune');
+  }
+
   async pull(branch: BranchInfo): Promise<void> {
     if (!branch.upstream) return;
     const idx = branch.upstream.indexOf('/');

@@ -112,6 +112,17 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
     }
   }
 
+  async fetchPrune(): Promise<void> {
+    if (!this.repoRoot) return;
+    const git = new GitService(this.repoRoot);
+    try {
+      await git.fetchPrune();
+      this.refresh();
+    } catch (err) {
+      vscode.window.showErrorMessage(`Fetch failed: ${String(err)}`);
+    }
+  }
+
   async checkout(item: BranchItem): Promise<void> {
     if (!this.repoRoot) return;
     const git = new GitService(this.repoRoot);
