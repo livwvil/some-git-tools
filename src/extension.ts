@@ -51,6 +51,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('someGitTools.deleteLocalBranch', (item: BranchItem) => branches.deleteLocalBranch(item)),
     vscode.commands.registerCommand('someGitTools.deleteRemoteBranch', (item: BranchItem) => branches.deleteRemoteBranch(item)),
     vscode.commands.registerCommand('someGitTools.pullBranch', (item: BranchItem) => branches.pullBranch(item)),
+    vscode.commands.registerCommand('someGitTools.copyCommitHash', (item: CommitItem) =>
+      vscode.env.clipboard.writeText(item.commit.hash),
+    ),
   );
 }
 

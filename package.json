@@ -79,6 +79,11 @@
         "command": "someGitTools.fetchPruneBranches",
         "title": "Fetch & Prune",
         "icon": "$(cloud-download)"
+      },
+      {
+        "command": "someGitTools.copyCommitHash",
+        "title": "Copy Commit Hash",
+        "icon": "$(copy)"
       }
     ],
     "colors": [
@@ -144,6 +149,11 @@
           "command": "someGitTools.pullBranch",
           "when": "view == someGitTools.branches && viewItem =~ /pull/",
           "group": "1_branch@0"
+        },
+        {
+          "command": "someGitTools.copyCommitHash",
+          "when": "view == someGitTools.fileHistory && viewItem == commit",
+          "group": "inline"
         }
       ]
     }
