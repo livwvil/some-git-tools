@@ -38,7 +38,7 @@ export class FileHistoryProvider implements vscode.TreeDataProvider<CommitItem> 
     const activeTab = vscode.window.tabGroups.activeTabGroup?.activeTab;
 
     if (activeTab?.input instanceof vscode.TabInputText) {
-      if (!editor || editor.document.isUntitled || !ws) return;
+      if (!editor || editor.document.isUntitled || editor.document.uri.scheme !== 'file' || !ws) return;
       this.filePath = editor.document.uri.fsPath;
       this.repoRoot = ws.uri.fsPath;
       this.targetHash = undefined;
