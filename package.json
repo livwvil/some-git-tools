@@ -2,7 +2,7 @@
   "name": "some-git-tools",
   "displayName": "Some Git Tools",
   "description": "Git utilities for VSCode: file commit history with diff, branch manager with gone-branch detection",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "livwvil",
   "license": "MIT",
   "repository": {
