@@ -91,9 +91,9 @@
         "id": "someGitTools.goneBranchForeground",
         "description": "Foreground color for branches whose remote tracking branch is gone",
         "defaults": {
-          "dark": "#712922",
+          "dark": "#e05252",
           "light": "#9b2c1e",
-          "highContrast": "#e05c4a"
+          "highContrast": "#f14c4c"
         }
       },
       {

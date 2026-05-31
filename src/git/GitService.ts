@@ -28,9 +28,12 @@ export class GitService {
   private async run(...args: string[]): Promise<string> {
     try {
       const { stdout } = await execFileAsync('git', args, { cwd: this.cwd });
-      return stdout.trim();
+      return stdout.trimEnd();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? (err as NodeJS.ErrnoException & { stderr?: string }).stderr ?? err.message : String(err);
+      const msg =
+        err instanceof Error
+          ? ((err as NodeJS.ErrnoException & { stderr?: string }).stderr ?? err.message)
+          : String(err);
       throw new Error(msg);
     }
   }
@@ -39,12 +42,14 @@ export class GitService {
     const SEP = '\x1f';
     const RS = '\x1e';
     const out = await this.run(
-      'log', '--follow',
+      'log',
+      '--follow',
       `--format=%H${SEP}%h${SEP}%p${SEP}%s${SEP}%an${SEP}%ai${RS}`,
-      '--', filePath,
+      '--',
+      filePath,
     );
     if (!out) return [];
-    return out.split(RS).flatMap(record => {
+    return out.split(RS).flatMap((record) => {
       const trimmed = record.trim();
       if (!trimmed) return [];
       const [hash, shortHash, parentHashes, subject, author, date] = trimmed.split(SEP);
@@ -62,20 +67,22 @@ export class GitService {
       'refs/heads',
     );
     if (!out) return [];
-    return out.split('\n').flatMap(line => {
+    return out.split('\n').flatMap((line) => {
       if (!line) return [];
       const [head, name, upstream, track, timestamp] = line.split(TAB);
       const aheadMatch = /ahead (\d+)/.exec(track ?? '');
       const behindMatch = /behind (\d+)/.exec(track ?? '');
-      return [{
-        name,
-        isCurrent: head === '*',
-        upstream: upstream || undefined,
-        isGone: track?.includes('[gone]') ?? false,
-        numAhead: aheadMatch ? parseInt(aheadMatch[1], 10) : 0,
-        numBehind: behindMatch ? parseInt(behindMatch[1], 10) : 0,
-        lastCommitTimestamp: parseInt(timestamp, 10) || 0,
-      }];
+      return [
+        {
+          name,
+          isCurrent: head === '*',
+          upstream: upstream || undefined,
+          isGone: track?.includes('[gone]') ?? false,
+          numAhead: aheadMatch ? parseInt(aheadMatch[1], 10) : 0,
+          numBehind: behindMatch ? parseInt(behindMatch[1], 10) : 0,
+          lastCommitTimestamp: parseInt(timestamp, 10) || 0,
+        },
+      ];
     });
   }
 

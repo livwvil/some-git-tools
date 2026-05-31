@@ -9,10 +9,6 @@ export function activate(context: vscode.ExtensionContext): void {
   const fileHistory = new FileHistoryProvider();
   const branches = new BranchesProvider();
 
-  // Trigger initial load
-  fileHistory.refresh();
-  branches.refresh();
-
   // Auto-refresh branches when HEAD changes (checkout, rebase, etc.)
   const headWatcher = vscode.workspace.createFileSystemWatcher('**/.git/HEAD');
   // Auto-refresh branches when fetch runs in the terminal (updates FETCH_HEAD)
@@ -55,6 +51,10 @@ export function activate(context: vscode.ExtensionContext): void {
       vscode.env.clipboard.writeText(item.commit.hash),
     ),
   );
+
+  // Trigger initial load after all providers are registered
+  fileHistory.refresh();
+  branches.refresh();
 }
 
 export function deactivate(): void {}
